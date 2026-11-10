@@ -1,5 +1,6 @@
 package br.upe.controller;
 
+import br.upe.DAO.TarefaDAO;
 import br.upe.model.Tarefa;
 import br.upe.model.TarefaTableModel;
 
@@ -11,15 +12,17 @@ public class TarefaControlador {
 
     // Atributos
     private TarefaTableModel tarefaTableModel;
+    private TarefaDAO arquivo;
 
     //Construtor
     public TarefaControlador() {
         tarefaTableModel = new TarefaTableModel();
+        arquivo = new TarefaDAO();
     }
 
     //Metodos de negocio
     public void adicionarTarefaAtiva(Tarefa tarefa) {
-        this.tarefaTableModel.getTarefasAtivas().add(tarefa);
+        this.tarefaTableModel.getTarefasAtivas().add(tarefa); arquivo.salvarEmArquivo();
     }
 
     public void exibirFinalizadas(boolean exibir) {
