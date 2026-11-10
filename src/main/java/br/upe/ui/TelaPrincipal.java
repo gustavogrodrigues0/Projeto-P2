@@ -8,8 +8,7 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +27,18 @@ public class TelaPrincipal {
     public TelaPrincipal() {
         super();
         tarefas = new ArrayList<>();
-        btnAdicionarTarefa.addActionListener(e -> {
+        btnAdicionarTarefa.addActionListener(( e) -> {
             adicionarTarefa(txtDescricaoTarefa.getText());
             txtDescricaoTarefa.setText("");
+        });
+        txtDescricaoTarefa.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    adicionarTarefa(txtDescricaoTarefa.getText());
+                    txtDescricaoTarefa.setText("");
+                }
+            }
         });
         chkExibirFinalizadas.addActionListener(e -> {
             boolean selecionado = ((JCheckBox) e.getSource()).isSelected();
