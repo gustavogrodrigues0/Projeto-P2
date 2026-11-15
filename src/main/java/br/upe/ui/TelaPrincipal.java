@@ -9,6 +9,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,14 +29,22 @@ public class TelaPrincipal {
         super();
         tarefas = new ArrayList<>();
         btnAdicionarTarefa.addActionListener(( e) -> {
-            adicionarTarefa(txtDescricaoTarefa.getText());
+            try {
+                adicionarTarefa(txtDescricaoTarefa.getText());
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
             txtDescricaoTarefa.setText("");
         });
         txtDescricaoTarefa.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    adicionarTarefa(txtDescricaoTarefa.getText());
+                    try {
+                        adicionarTarefa(txtDescricaoTarefa.getText());
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                     txtDescricaoTarefa.setText("");
                 }
             }
@@ -46,7 +55,7 @@ public class TelaPrincipal {
         });
     }
 
-    private void adicionarTarefa(String texto) {
+    private void adicionarTarefa(String texto) throws IOException {
         Tarefa tarefa = new Tarefa(texto, tarefas.size());
         controlador.adicionarTarefaAtiva(tarefa);
         tblTarefas.revalidate();
@@ -61,6 +70,18 @@ public class TelaPrincipal {
         controlador = new TarefaControlador();
         tblTarefas = new JTable(controlador.getTarefaTableModel());
         tblTarefas.getColumnModel().getColumn(0).setMaxWidth(20);
+
+        /*Adiciona um listener ao modelo da tabela para detectar alterações,
+         como quando uma tarefa é marcada como finalizada.
+         Sempre que ocorre uma modificação, chama o Controller
+         para atualizar o arquivo TXT com os dados atuais.*/
+        tblTarefas.getModel().addTableModelListener(e -> {
+            try {
+                controlador.salvarTarefas();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
     }
 
 }

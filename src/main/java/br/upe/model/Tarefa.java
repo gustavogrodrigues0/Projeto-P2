@@ -15,6 +15,7 @@ public class Tarefa {
         this.dataCriacao = LocalDate.now();
         this.descricao = texto;
         this.ordem = ordem;
+        finalizada = false;
     }
 
     public String getDescricao() {
