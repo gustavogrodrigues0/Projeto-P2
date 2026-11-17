@@ -1,11 +1,15 @@
 package br.upe.DAO;
 
 import br.upe.model.Tarefa;
-import br.upe.model.TarefaTableModel;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,74 +18,38 @@ public class TarefaDAO {
 
     private final String caminho;
 
+    private final Gson gson = new GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(LocalDate.class,
+                    (JsonSerializer<LocalDate>) (data, tipo, ctx) -> new JsonPrimitive(data.toString()))
+            .registerTypeAdapter(LocalDate.class,
+                    (JsonDeserializer<LocalDate>) (json, tipo, ctx) -> LocalDate.parse(json.getAsString()))
+            .create();
+
     public TarefaDAO(String caminho) {
         this.caminho = caminho;
     }
+
     public List<Tarefa> carregarArquivo() {
-        List<Tarefa> lista = new ArrayList<>();
 
-        try (BufferedReader leitor = new BufferedReader(
-                new FileReader(caminho))) {
-
-            String linha;
-
-            while ((linha = leitor.readLine()) != null) {
-                String[] dados = linha.split(";");
-
-                String descricao = dados[0];
-
-                LocalDate dataCriacao = LocalDate.parse(dados[1]);
-
-                LocalDate dataFinalizacao = dados[2].equals("null")
-                        ? null
-                        : LocalDate.parse(dados[2]);
-
-                LocalDate dataVencimento = dados[3].equals("null")
-                        ? null
-                        : LocalDate.parse(dados[3]);
-
-                boolean finalizada = Boolean.parseBoolean(dados[4]);
-                int ordem = Integer.parseInt(dados[5]);
-
-                Tarefa t = new Tarefa(descricao, ordem);
-
-                t.setDataCriacao(dataCriacao);
-                t.setDataFinalizacao(dataFinalizacao);
-                t.setDataVencimento(dataVencimento);
-                t.setFinalizada(finalizada);
-
-                lista.add(t);
-            }
-
-        } catch (FileNotFoundException e) {
-            return lista;
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao carregar tarefas", e);
+        if (!Files.exists(Paths.get(caminho))) {
+            return new ArrayList<>();
         }
 
-        return lista;
+        try (FileReader reader = new FileReader(caminho)) {
+            Type tipoTarefa = new TypeToken<List<Tarefa>>() {}.getType();
+            List<Tarefa> tarefasCarregadas = gson.fromJson(reader, tipoTarefa);
+            return tarefasCarregadas != null ? tarefasCarregadas : new ArrayList<>();
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao ler o arquivo: " + caminho, e);
+        }
     }
 
-
-    public void salvarEmArquivo(List<Tarefa> tarefas) throws IOException {
-
-        try (BufferedWriter escritor = new BufferedWriter(new FileWriter(caminho))) {
-
-            for (Tarefa t : tarefas) {
-                escritor.write(
-                        t.getDescricao() + ";" +
-                                t.getDataCriacao() + ";" +
-                                t.getDataFinalizacao() + ";" +
-                                t.getDataVencimento() + ";" +
-                                t.isFinalizada() + ";" +
-                                t.getOrdem()
-                );
-
-                escritor.newLine();
-            }
-
+    public void salvarEmArquivo(List<Tarefa> tarefas) {
+        try (FileWriter writer = new FileWriter(caminho)) {
+            gson.toJson(tarefas, writer);
         } catch (IOException e) {
-            throw new RuntimeException("Erro ao salvar tarefas", e);
+            throw new RuntimeException("Erro ao salvar o arquivo: " + caminho, e);
         }
     }
 }

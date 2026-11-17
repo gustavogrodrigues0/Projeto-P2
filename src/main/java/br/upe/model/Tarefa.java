@@ -12,8 +12,8 @@ public class Tarefa {
     private int ordem;
 
     public Tarefa(String texto, int ordem) {
-        this.dataCriacao = LocalDate.now();
         this.descricao = texto;
+        this.dataCriacao = LocalDate.now();
         this.ordem = ordem;
         finalizada = false;
     }
