@@ -16,9 +16,9 @@ public class TarefaControlador {
     private TarefaDAO dao;
 
     //Construtor
-    public TarefaControlador() {
+    public TarefaControlador(String arquivo) {
         tarefaTableModel = new TarefaTableModel();
-        dao = new TarefaDAO();
+        dao = new TarefaDAO(arquivo);
 
         List<Tarefa> lista = dao.carregarArquivo();
 

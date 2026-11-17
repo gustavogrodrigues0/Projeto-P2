@@ -12,12 +12,16 @@ import java.util.List;
 
 public class TarefaDAO {
 
+    private final String caminho;
 
+    public TarefaDAO(String caminho) {
+        this.caminho = caminho;
+    }
     public List<Tarefa> carregarArquivo() {
         List<Tarefa> lista = new ArrayList<>();
 
         try (BufferedReader leitor = new BufferedReader(
-                new FileReader("tarefas.txt"))) {
+                new FileReader(caminho))) {
 
             String linha;
 
@@ -61,7 +65,7 @@ public class TarefaDAO {
 
     public void salvarEmArquivo(List<Tarefa> tarefas) throws IOException {
 
-        try (BufferedWriter escritor = new BufferedWriter(new FileWriter("tarefas.txt"))) {
+        try (BufferedWriter escritor = new BufferedWriter(new FileWriter(caminho))) {
 
             for (Tarefa t : tarefas) {
                 escritor.write(

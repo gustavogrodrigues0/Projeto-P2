@@ -25,9 +25,26 @@ public class TelaPrincipal {
 
     private TarefaControlador controlador;
 
-    public TelaPrincipal() {
+    public TelaPrincipal(String arquivo) {
         super();
         tarefas = new ArrayList<>();
+
+        controlador = new TarefaControlador(arquivo);
+        tblTarefas.setModel(controlador.getTarefaTableModel());
+        tblTarefas.getColumnModel().getColumn(0).setMaxWidth(20);
+
+         /*Adiciona um listener ao modelo da tabela para detectar alterações,
+         como quando uma tarefa é marcada como finalizada.
+         Sempre que ocorre uma modificação, chama o Controller
+         para atualizar o arquivo TXT com os dados atuais.*/
+        tblTarefas.getModel().addTableModelListener(( e) -> {
+            try {
+                controlador.salvarTarefas();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         btnAdicionarTarefa.addActionListener(( e) -> {
             try {
                 adicionarTarefa(txtDescricaoTarefa.getText());
@@ -67,21 +84,7 @@ public class TelaPrincipal {
     }
 
     private void createUIComponents() {
-        controlador = new TarefaControlador();
-        tblTarefas = new JTable(controlador.getTarefaTableModel());
-        tblTarefas.getColumnModel().getColumn(0).setMaxWidth(20);
-
-        /*Adiciona um listener ao modelo da tabela para detectar alterações,
-         como quando uma tarefa é marcada como finalizada.
-         Sempre que ocorre uma modificação, chama o Controller
-         para atualizar o arquivo TXT com os dados atuais.*/
-        tblTarefas.getModel().addTableModelListener(e -> {
-            try {
-                controlador.salvarTarefas();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        tblTarefas = new JTable();
     }
 
 }
