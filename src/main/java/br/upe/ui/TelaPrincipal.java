@@ -23,7 +23,7 @@ public class TelaPrincipal {
         tblTarefas.setModel(controlador.getTarefaTableModel());
         tblTarefas.getColumnModel().getColumn(0).setMaxWidth(50);
 
-        // O botão e a tecla Enter no campo de texto executam a mesma ação.
+
         ActionListener adicionar = e -> adicionarTarefa();
         btnAdicionarTarefa.addActionListener(adicionar);
         txtDescricaoTarefa.addActionListener(adicionar);
