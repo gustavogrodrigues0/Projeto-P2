@@ -25,18 +25,28 @@ public class TelaDeListas extends JPanel {
 
         telas = new HashMap<>();
 
-
         JPanel pnlLateral = new JPanel(new BorderLayout());
         pnlLateral.setPreferredSize(new Dimension(180, 0));
 
         JLabel lblTitulo = new JLabel("Minhas listas");
+
         JButton btnNovaLista = new JButton("Criar nova lista");
         btnNovaLista.setBackground(new Color(0, 134, 221));
-        btnNovaLista.setForeground(Color.white);
+        btnNovaLista.setForeground(Color.WHITE);
+
+        JButton btnExcluirLista = new JButton("Excluir lista");
+        btnExcluirLista.setBackground(Color.RED);
+        btnExcluirLista.setForeground(Color.WHITE);
+
+        // Painel para organizar os dois botões
+        JPanel pnlBotoes = new JPanel(new GridLayout(2, 1, 0, 5));
+
+        pnlBotoes.add(btnNovaLista);
+        pnlBotoes.add(btnExcluirLista);
 
         pnlLateral.add(lblTitulo, BorderLayout.NORTH);
         pnlLateral.add(new JScrollPane(lista), BorderLayout.CENTER);
-        pnlLateral.add(btnNovaLista, BorderLayout.SOUTH);
+        pnlLateral.add(pnlBotoes, BorderLayout.SOUTH);
 
         add(pnlLateral, BorderLayout.WEST);
         add(pnlConteudo, BorderLayout.CENTER);
@@ -48,6 +58,8 @@ public class TelaDeListas extends JPanel {
         });
 
         btnNovaLista.addActionListener(e -> criarLista());
+
+        btnExcluirLista.addActionListener(e -> excluirLista());
     }
 
     public void abrirAba(String arquivo) {
@@ -82,6 +94,46 @@ public class TelaDeListas extends JPanel {
 
     private void criarLista() {
         abrirAba(proximoNome());
+    }
+
+    private void excluirLista() {
+
+        String nome = lista.getSelectedValue();
+
+        if (nome == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Selecione uma lista para excluir.",
+                    "Aviso",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        File arquivo = new File(nome);
+
+        if (arquivo.exists() && !arquivo.delete()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Não foi possível excluir o arquivo.",
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        int indice = lista.getSelectedIndex();
+
+        telas.remove(nome);
+        modeloListas.removeElement(nome);
+
+        if (modeloListas.isEmpty()) {
+            lista.clearSelection();
+        } else {
+            lista.setSelectedIndex(
+                    Math.min(indice, modeloListas.size() - 1)
+            );
+        }
     }
 
     private boolean jaAberto(String nome) {
