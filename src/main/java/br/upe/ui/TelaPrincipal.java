@@ -1,17 +1,9 @@
 package br.upe.ui;
 
 import br.upe.controller.TarefaControlador;
-import br.upe.model.Tarefa;
-import br.upe.model.TarefaTableModel;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.event.ActionListener;
 
 public class TelaPrincipal {
     private JPanel pnlMain;
@@ -21,62 +13,30 @@ public class TelaPrincipal {
     private JTable tblTarefas;
     private JCheckBox chkExibirFinalizadas;
 
-    private List<Tarefa> tarefas;
-
-    private TarefaControlador controlador;
+    private final TarefaControlador controlador;
 
     public TelaPrincipal(String arquivo) {
-        super();
-        tarefas = new ArrayList<>();
-
         controlador = new TarefaControlador(arquivo);
+        controlador.setOnErro(msg -> JOptionPane.showMessageDialog(
+                pnlMain, msg, "Erro", JOptionPane.ERROR_MESSAGE));
+
         tblTarefas.setModel(controlador.getTarefaTableModel());
-        tblTarefas.getColumnModel().getColumn(0).setMaxWidth(20);
+        tblTarefas.getColumnModel().getColumn(0).setMaxWidth(50);
 
-         /*Adiciona um listener ao modelo da tabela para detectar alterações,
-         como quando uma tarefa é marcada como finalizada.
-         Sempre que ocorre uma modificação, chama o Controller
-         para atualizar o arquivo TXT com os dados atuais.*/
-        tblTarefas.getModel().addTableModelListener(( e) -> {
-            try {
-                controlador.salvarTarefas();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        // O botão e a tecla Enter no campo de texto executam a mesma ação.
+        ActionListener adicionar = e -> adicionarTarefa();
+        btnAdicionarTarefa.addActionListener(adicionar);
+        txtDescricaoTarefa.addActionListener(adicionar);
 
-        btnAdicionarTarefa.addActionListener(( e) -> {
-            try {
-                adicionarTarefa(txtDescricaoTarefa.getText());
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-            txtDescricaoTarefa.setText("");
-        });
-        txtDescricaoTarefa.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    try {
-                        adicionarTarefa(txtDescricaoTarefa.getText());
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                    txtDescricaoTarefa.setText("");
-                }
-            }
-        });
-        chkExibirFinalizadas.addActionListener(e -> {
-            boolean selecionado = ((JCheckBox) e.getSource()).isSelected();
-            controlador.exibirFinalizadas(selecionado);
-        });
+        chkExibirFinalizadas.addActionListener(e ->
+                controlador.exibirFinalizadas(chkExibirFinalizadas.isSelected()));
     }
 
-    private void adicionarTarefa(String texto) throws IOException {
-        Tarefa tarefa = new Tarefa(texto, tarefas.size());
-        controlador.adicionarTarefaAtiva(tarefa);
-        tblTarefas.revalidate();
-        tblTarefas.repaint();
+    private void adicionarTarefa() {
+        if (controlador.adicionarTarefa(txtDescricaoTarefa.getText())) {
+            txtDescricaoTarefa.setText("");
+        }
+        txtDescricaoTarefa.requestFocusInWindow();
     }
 
     public JPanel getPnlMain() {

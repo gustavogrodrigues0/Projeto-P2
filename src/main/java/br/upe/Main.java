@@ -29,7 +29,7 @@ public class Main {
         conteudo.add(btnMais, BorderLayout.NORTH);
         conteudo.add(abas, BorderLayout.CENTER);
 
-        JFrame frame = new JFrame("ToDo");
+        JFrame frame = new JFrame("Lista de Tarefas");
         frame.setContentPane(conteudo);
         frame.pack();
         frame.setVisible(true);

@@ -1,48 +1,48 @@
 package br.upe.model;
 
 import javax.swing.table.AbstractTableModel;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
+
 
 public class TarefaTableModel extends AbstractTableModel {
-    private List<Tarefa> tarefasFinalizadas;
-    private List<Tarefa> tarefasAtivas;
 
+    private static final String[] COLUNAS = {"Feita", "Descrição"};
+
+    private final List<Tarefa> todas = new ArrayList<>();
+    private final List<Tarefa> visiveis = new ArrayList<>();
     private boolean exibirFinalizadas;
-
-    public TarefaTableModel() {
-        tarefasAtivas = new ArrayList<>();
-        tarefasFinalizadas = new ArrayList<>();
-    }
 
     @Override
     public int getRowCount() {
-        return tarefasAtivas.size();
+        return visiveis.size();
     }
 
     @Override
     public int getColumnCount() {
-        return 2;
+        return COLUNAS.length;
+    }
+
+    @Override
+    public String getColumnName(int column) {
+        return COLUNAS[column];
+    }
+
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        return columnIndex == 0 ? Boolean.class : String.class;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Tarefa tarefa = tarefasAtivas.get(rowIndex);
+        Tarefa tarefa = visiveis.get(rowIndex);
         switch (columnIndex) {
-            case 0 : return tarefa.isFinalizada();
-            case 1 : return tarefa.getDescricao();
+            case 0: return tarefa.isFinalizada();
+            case 1: return tarefa.getDescricao();
+            default: return null;
         }
-        return null;
-    }
-
-    public Class getColumnClass(int c) {
-        switch (c) {
-            case 0 : return Boolean.class;
-            case 1 : return String.class;
-        }
-        return null;
     }
 
     @Override
@@ -52,52 +52,51 @@ public class TarefaTableModel extends AbstractTableModel {
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        Tarefa tarefa = tarefasAtivas.get(rowIndex);
-        tarefa.setFinalizada((Boolean) aValue);
-        if (this.exibirFinalizadas) {
-            if ((Boolean) aValue) {
-                tarefasFinalizadas.add(tarefa);
-            } else {
-                tarefasFinalizadas.remove(tarefa);
-            }
-        } else {
-            if ((Boolean) aValue) {
-                tarefasAtivas.remove(tarefa);
-                tarefasFinalizadas.add(tarefa);
+        if (columnIndex != 0) {
+            return;
+        }
+        Tarefa tarefa = visiveis.get(rowIndex);
+        boolean finalizada = (Boolean) aValue;
+        tarefa.setFinalizada(finalizada);
+        tarefa.setDataFinalizacao(finalizada ? LocalDate.now() : null);
+        atualizarVisiveis();
+        fireTableDataChanged();
+    }
+
+    private void atualizarVisiveis() {
+        visiveis.clear();
+        for (Tarefa t : todas) {
+            if (exibirFinalizadas || !t.isFinalizada()) {
+                visiveis.add(t);
             }
         }
-        this.fireTableDataChanged();
     }
 
-
-    public void setExibirFinalizadas(boolean selecionado) {
-        this.exibirFinalizadas = selecionado;
-        if (this.exibirFinalizadas) {
-            this.tarefasAtivas.addAll(this.tarefasFinalizadas);
-        } else {
-            this.tarefasAtivas.removeAll(this.tarefasFinalizadas);
-        }
-        this.fireTableDataChanged();
+    public void setTarefas(List<Tarefa> tarefas) {
+        todas.clear();
+        todas.addAll(tarefas);
+        atualizarVisiveis();
+        fireTableDataChanged();
     }
 
-    public List<Tarefa> getTarefasFinalizadas() {
-        return tarefasFinalizadas;
+    public void adicionar(Tarefa tarefa) {
+        todas.add(tarefa);
+        atualizarVisiveis();
+        fireTableDataChanged();
     }
 
-    public void setTarefasFinalizadas(List<Tarefa> tarefasFinalizadas) {
-        this.tarefasFinalizadas = tarefasFinalizadas;
-    }
-
-    public List<Tarefa> getTarefasAtivas() {
-        return tarefasAtivas;
-    }
-
-    public void setTarefasAtivas(List<Tarefa> tarefasAtivas) {
-        this.tarefasAtivas = tarefasAtivas;
+    public void setExibirFinalizadas(boolean exibir) {
+        this.exibirFinalizadas = exibir;
+        atualizarVisiveis();
+        fireTableDataChanged();
     }
 
     public boolean isExibirFinalizadas() {
         return exibirFinalizadas;
     }
 
+
+    public List<Tarefa> getTarefas() {
+        return Collections.unmodifiableList(todas);
+    }
 }

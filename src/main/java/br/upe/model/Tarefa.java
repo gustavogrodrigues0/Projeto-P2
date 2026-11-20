@@ -11,10 +11,10 @@ public class Tarefa {
     private Boolean finalizada;
     private int ordem;
 
-    public Tarefa(String texto, int ordem) {
+    public Tarefa(String texto) {
         this.descricao = texto;
         this.dataCriacao = LocalDate.now();
-        this.ordem = ordem;
+        this.ordem = 0;
         finalizada = false;
     }
 
