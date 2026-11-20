@@ -85,6 +85,12 @@ public class TarefaTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    public void remover(int linha) {
+        todas.remove(visiveis.get(linha));
+        atualizarVisiveis();
+        fireTableDataChanged();
+    }
+
     public void setExibirFinalizadas(boolean exibir) {
         this.exibirFinalizadas = exibir;
         atualizarVisiveis();

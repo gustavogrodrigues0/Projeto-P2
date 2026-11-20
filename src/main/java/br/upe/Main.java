@@ -1,7 +1,7 @@
 
 package br.upe;
 
-import br.upe.model.Aba;
+import br.upe.ui.TelaDeListas;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;
@@ -14,7 +14,7 @@ public class Main {
 
         SwingUtilities.invokeLater(() -> {
 
-            Aba abas = new Aba();
+            TelaDeListas abas = new TelaDeListas();
 
             abas.abrirAbasSalvas();
 

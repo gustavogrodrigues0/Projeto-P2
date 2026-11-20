@@ -12,6 +12,8 @@ public class TelaPrincipal {
     private JPanel pnlAdicionar;
     private JTable tblTarefas;
     private JCheckBox chkExibirFinalizadas;
+    private JPanel pnlRodape;
+    private JButton btnExcluirTarefa;
 
     private final TarefaControlador controlador;
 
@@ -30,6 +32,8 @@ public class TelaPrincipal {
 
         chkExibirFinalizadas.addActionListener(e ->
                 controlador.exibirFinalizadas(chkExibirFinalizadas.isSelected()));
+
+        btnExcluirTarefa.addActionListener(e -> excluirTarefa());
     }
 
     private void adicionarTarefa() {
@@ -37,6 +41,13 @@ public class TelaPrincipal {
             txtDescricaoTarefa.setText("");
         }
         txtDescricaoTarefa.requestFocusInWindow();
+    }
+
+    private void excluirTarefa() {
+        int linha = tblTarefas.getSelectedRow();
+        if (linha >= 0) {
+            controlador.excluirTarefa(linha);
+        }
     }
 
     public JPanel getPnlMain() {

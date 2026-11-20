@@ -1,7 +1,5 @@
 
-package br.upe.model;
-
-import br.upe.ui.TelaPrincipal;
+package br.upe.ui;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Aba extends JPanel {
+public class TelaDeListas extends JPanel {
 
     private final DefaultListModel<String> modeloListas;
     private final JList<String> lista;
@@ -18,7 +16,7 @@ public class Aba extends JPanel {
 
     private final Map<String, TelaPrincipal> telas;
 
-    public Aba() {
+    public TelaDeListas() {
         setLayout(new BorderLayout());
 
         modeloListas = new DefaultListModel<>();

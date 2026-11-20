@@ -32,6 +32,10 @@ public class TarefaControlador {
         return true;
     }
 
+    public void excluirTarefa(int linha) {
+        tarefaTableModel.remover(linha);
+    }
+
     public void salvarTarefas() {
         try {
             dao.salvarEmArquivo(tarefaTableModel.getTarefas());
