@@ -1,9 +1,12 @@
 
 package br.upe.ui;
 
+import br.upe.DAO.TarefaDAO;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +16,7 @@ public class TelaDeListas extends JPanel {
     private final DefaultListModel<String> modeloListas;
     private final JList<String> lista;
     private final JPanel pnlConteudo;
+    private final JTextField textNomeLista;
 
     private final Map<String, TelaPrincipal> telas;
 
@@ -38,9 +42,15 @@ public class TelaDeListas extends JPanel {
         btnExcluirLista.setBackground(Color.RED);
         btnExcluirLista.setForeground(Color.WHITE);
 
-        // Painel para organizar os dois botões
-        JPanel pnlBotoes = new JPanel(new GridLayout(2, 1, 0, 5));
+        //campo de texto com o place holder
+        textNomeLista = new JTextField();
+        textNomeLista.putClientProperty("JTextField.placeholderText", "Nome da lista (opcional)");
+        textNomeLista.addActionListener(e -> criarLista());
 
+        // Painel para organizar os dois botões
+        JPanel pnlBotoes = new JPanel(new GridLayout(3, 1, 0, 5));
+
+        pnlBotoes.add(textNomeLista);
         pnlBotoes.add(btnNovaLista);
         pnlBotoes.add(btnExcluirLista);
 
@@ -93,7 +103,41 @@ public class TelaDeListas extends JPanel {
     }
 
     private void criarLista() {
-        abrirAba(proximoNome());
+        String digitado = textNomeLista.getText().trim();
+
+        String nome;
+        if (digitado.isEmpty()) {
+            nome = proximoNome();
+        } else {
+            if (digitado.endsWith(".json")) {
+                nome = digitado;
+            }else{
+                nome = digitado+".json";
+            }
+
+            if (nome.matches(".*[\\\\/:*?\"<>|].*")) {
+                JOptionPane.showMessageDialog(this, "O nome não pode ter caracteres especiais", "Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (new File(nome).exists() || jaAberto(nome)) {
+                JOptionPane.showMessageDialog(this, "Já existe uma lista com esse nome", "Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
+        //mantem as listas vazias
+        try {
+            new TarefaDAO(nome).salvarEmArquivo(new ArrayList<>());
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        abrirAba(nome);
+        textNomeLista.setText("");
+
+        abrirAba(nome);
+        textNomeLista.setText("");
+
     }
 
     private void excluirLista() {
@@ -158,7 +202,7 @@ public class TelaDeListas extends JPanel {
         File pasta = new File(".");
 
         File[] arquivos = pasta.listFiles(
-                (dir, nome) -> nome.matches("tarefas\\d*\\.json")
+                (dir, nome) -> nome.endsWith(".json")
         );
 
         if (arquivos == null || arquivos.length == 0) {
@@ -171,5 +215,6 @@ public class TelaDeListas extends JPanel {
         for (File f : arquivos) {
             abrirAba(f.getName());
         }
+        lista.setSelectedIndex(0);
     }
 }
