@@ -1,4 +1,3 @@
-
 package br.upe.ui;
 
 import br.upe.DAO.TarefaDAO;
@@ -25,6 +24,19 @@ public class TelaDeListas extends JPanel {
 
         modeloListas = new DefaultListModel<>();
         lista = new JList<>(modeloListas);
+
+        lista.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                String texto = String.valueOf(value);
+                if (texto.endsWith(".json")) {
+                    texto = texto.substring(0, texto.length() - 5);
+                }
+                return super.getListCellRendererComponent(list, texto, index, isSelected, cellHasFocus);
+            }
+        });
+
         pnlConteudo = new JPanel(new BorderLayout());
 
         telas = new HashMap<>();
@@ -111,8 +123,8 @@ public class TelaDeListas extends JPanel {
         } else {
             if (digitado.endsWith(".json")) {
                 nome = digitado;
-            }else{
-                nome = digitado+".json";
+            } else {
+                nome = digitado + ".json";
             }
 
             if (nome.matches(".*[\\\\/:*?\"<>|].*")) {
@@ -134,10 +146,6 @@ public class TelaDeListas extends JPanel {
 
         abrirAba(nome);
         textNomeLista.setText("");
-
-        abrirAba(nome);
-        textNomeLista.setText("");
-
     }
 
     private void excluirLista() {
